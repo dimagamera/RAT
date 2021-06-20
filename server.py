@@ -28,7 +28,7 @@ while True:
             conn.send(cmd.encode())
             direct = input('1. Наявня папка 2. Перейти >')
             if direct == '1':
-                conn.send(cmd.encode())
+                conn.send(direct.encode())
                 f = open('file.txt', 'wb')
                 while True:
                     try:
@@ -46,7 +46,7 @@ while True:
                 os.remove('file.txt')
 
             elif direct == '2':
-                conn.send(cmd.encode())
+                conn.send(direct.encode())
                 dir = input('Enter directory > ')
                 conn.send(dir.encode())
                 f = open('file.txt', 'wb')
